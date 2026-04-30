@@ -1,4 +1,4 @@
-**Project Title**: Console-Formula-Racing
+**Project Title**: Console Formula Racing
 
 **Overview**: This project is a command-line lap racing game inspired by Formula 1 (F1), where 2 to 4 teams race on a linear track. Each team uses tire cards for movement and item cards for various effects to complete a fixed number of laps as quickly as possible. The game includes simplified rules for pit stops, weather, and passive team abilities.
 
