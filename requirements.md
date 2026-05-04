@@ -13,23 +13,17 @@
 8. The terminal will show the turn order, live standings, and current weather.
 9. On the user’s turn, the user will choose one tire card from the hand and discard it to move forward.
 10. The amount of movement from a tire card will depend on the selected tire card and the current weather.
-11. On the user’s turn, the user may use item cards if their usage conditions are satisfied.
-12. If an item card creates a temporary effect, the game will keep that effect active for the required number of turns and remove it automatically when the effect expires.
-13. After each team completes its turn, the user will see the updated track in the terminal.
-14. At the beginning of each round, the weather will be changed randomly to Sunny or Rainy, and the result will be shown in the terminal.
-15. If a team has no tire cards left, that team will move with basic movement.
-16. If a team arrives on an item space, that team will draw one item card.
-17. If the user’s team draws an item card, the user will see that card in the terminal.
-18. If an AI team draws an item card, the terminal will show only that the AI team drew an item card.
-19. If a team’s movement passes the pit entry during its turn, that team may choose to enter the pit.
-20. If a team chooses to enter the pit, that team must stop at the Pit space even if it still has remaining movement.
-21. If a team enters the pit, that team will choose a tire type and receive new tire cards of that type.
-22. On the next turn in the pit, the team will draw one item card and attempt to exit the pit by a random die roll.
-23. If the pit exit roll succeeds, the team will immediately leave the pit and move by using a tire card. Otherwise, the team will remain in the pit.
-24. When a team crosses the start/finish line, that team’s lap count will increase by 1.
-25. The live standings shown in the terminal will be updated when lap counts or finishing order change.
-26. When a team completes the target number of laps, that team finishes the race.
-27. The race will end when all teams finish, and the terminal will show the final result in finishing order.
+11. After each team completes its turn, the user will see the updated track in the terminal.
+12. At the beginning of each round, the weather will be changed randomly to Sunny or Rainy, and the result will be shown in the terminal.
+13. If a team has no tire cards left, that team will move with basic movement with less than half of other tire card's.
+14. If a team’s movement passes the pit entry during its turn, that team may choose to enter the pit.
+15. If a team chooses to enter the pit, that team must stop at the Pit space even if it still has remaining movement.
+16. If a team enters the pit, that team will choose a tire type and receive new tire cards of that type.
+17. On the next turn in the pit, the team will leave the pit with using a tire card as usual.
+18. When a team crosses the start/finish line (include pit), that team’s lap count will increase by 1.
+19. The live standings shown in the terminal will be updated when lap counts or finishing order change.
+20. When a team completes the target number of laps, that team finishes the race.
+21. The race will end when all teams finish, and the terminal will show the final result in finishing order.
 
 
 **Example Interaction**:
