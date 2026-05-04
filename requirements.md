@@ -7,7 +7,7 @@
 2. The user will choose one passive ability for the user’s team.
 3. The user will control one team, and all other teams will be controlled by simple AI opponents.
 4. The passive abilities of AI opponents will be assigned randomly.
-5. Before the race begins, the user will choose one starting tire type for the user’s team.
+5. Before the race begins, the user will choose one starting tire type which has different movements for the user’s team.
 6. After setup is complete, the user will see a linear track in the terminal.
 7. At the start of the race, all teams will be shown at the start/finish line.
 8. The terminal will show the turn order, live standings, and current weather.
@@ -32,4 +32,4 @@
 The game asks the user to choose the number of teams, a passive ability for the user’s team, and a starting tire type by entering the option in the terminal. The game then assigns AI teams, determines the turn order, and prints the initial track and weather.
 
 **Race**:
-The game prints the current track and the user team’s cards. The user may use an item card, then chooses a tire card to move forward on their turn by entering the option in the terminal. If the movement can reach the pit entry, the user may choose to enter the pit and stop there. After the move, the game updates the track and standings, the AI teams take their turns, and the weather is updated at the beginning of the next round.
+The game prints the current track and the user team’s cards. The user chooses a tire card to move forward on their turn by entering the option in the terminal. If the movement can reach the pit entry, the user may choose to enter the pit and stop there. After the move, the game updates the track and standings, the AI teams take their turns, and the weather is updated at the beginning of the next round.
