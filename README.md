@@ -13,5 +13,11 @@ This repository contains console based racing game which is motivated with Formu
 - Added/removed some requirements for better game organization.
 - Submitted revised `requirements.md` as a PDF again.
 
+**May 23th, 2026: Basic Interface and Type Logics**
+- Made terminal interface with multiple space of tracks
+- Add pit entry, exit, space
+- Add Leaderboard
+
+
 ## Acknowledgement
 This game is distilled version of a game I implemented physically in this year as a Freshman Program Designer(FPD). The game was for the first program of Happy College Life(HCL), and there is no specific modeled board game for it - in other words, it was our, FPD's new idea. I sincerely appriciate to my teammates who worked for the program with me and gave permission to use the game as this term project's subject.
