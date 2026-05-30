@@ -24,6 +24,51 @@ All choices are made by entering a single natural number. Enter `!q` at any prom
    - Warm Tires (+2 move with Soft tires), Rain Engineer (+2 move in Rainy), Pit Crew (+2 cards on pit stop), Endurance (+2 basic move when hand is empty)
 3. **Starting tire type** — choose Soft (fast, few cards), Medium (balanced), or Hard (slow, many cards); move values for each weather are shown
 
+After you finished the settings, you may see the terminal interface as below.
+```text
+--------------------------------------------------
+  Turn order
+--------------------------------------------------
+  Redbull [CPU]
+  You [YOU]
+--------------------------------------------------
+
+ · Redbull's turn... done
+
+------------------------------------------------------------------------------------------
+ Round 1  | Weather: Sunny | Turn: You (YOU)
+------------------------------------------------------------------------------------------
+ AI turns:
+  Redbull    [Random|Rain Engineer]: pos 5 (Lap 0/3)
+------------------------------------------------------------------------------------------
+ TRACK:
+        │ pit exit (+1 lap)
+        ▼
+     ┌──00──┐┌──01──┐┌──02──┐┌──03──┐┌──04──┐┌──05──┐┌──06──┐┌──07──┐┌──08──┐┌──09──┐    
+     │      ││      ││      ││      ││      ││      ││      ││      ││      ││      │    
+ ┌─▶ │ A    ││ .... ││ .... ││ .... ││ .... ││ B    ││ .... ││ .... ││ .... ││ .... │ ──┐
+ │   │      ││      ││      ││      ││      ││      ││      ││      ││      ││      │   │
+ │   └──────┘└──────┘└──────┘└──────┘└──────┘└──────┘└──────┘└──────┘└──────┘└──────┘   │
+ │                                                                                      │
+─┼─ Start/Finish (+1 lap if you cross it)                                               │
+ │                                                                                      │
+ │   ┌──19──┐┌──18──┐┌──17──┐┌──16──┐┌──15──┐┌──14──┐┌──13──┐┌──12──┐┌──11──┐┌──10──┐   │
+ │   │      ││      ││      ││      ││      ││      ││      ││      ││      ││      │   │
+ └── │ .... ││ .... ││ .... ││ .... ││ .... ││ .... ││ .... ││ .... ││ .... ││ .... │ ◀─┘
+     │      ││      ││      ││      ││      ││      ││      ││      ││      ││      │    
+     └──────┘└──────┘└──────┘└──────┘└──────┘└──────┘└──────┘└──────┘└──────┘└──────┘    
+                │
+                ▼  pit entry
+------------------------------------------------------------------------------------------
+STANDINGS:
+  1. Redbull[CPU]                  Lap 0/3  Pos  5  Hard x9
+  2. You                           Lap 0/3  Pos  0  Soft x3
+------------------------------------------------------------------------------------------
+ YOUR HAND [+2 for Soft tires]
+  Soft[7] +2 | Soft[7] +2 | Soft[6] +2
+------------------------------------------------------------------------------------------
+```
+
 **Race loop** (repeats until all teams finish 3 laps):
 
 4. **View the track** — the current positions of all teams, live standings, weather, and your hand are shown
@@ -33,6 +78,46 @@ All choices are made by entering a single natural number. Enter `!q` at any prom
    - On your next turn, you automatically exit the pit to position 0 (+1 lap) and play a card as normal
 7. **Basic move** — if your hand is empty, you move automatically with basic movement (no card discarded)
 8. **AI turns** — AI teams move silently; their summaries appear at the top of your next turn
+
+In every turn of yours, you can see the updated terminal as below.
+```text
+*** Round 2 begins — Weather: Sunny ***
+
+ · Redbull's turn... done
+
+------------------------------------------------------------------------------------------
+ Round 2  | Weather: Sunny | Turn: You (YOU)
+------------------------------------------------------------------------------------------
+ AI turns:
+  Redbull    [Random|Rain Engineer]: pos 10 (Lap 0/3)
+------------------------------------------------------------------------------------------
+ TRACK:
+        │ pit exit (+1 lap)
+        ▼
+     ┌──00──┐┌──01──┐┌──02──┐┌──03──┐┌──04──┐┌──05──┐┌──06──┐┌──07──┐┌──08──┐┌──09──┐    
+     │      ││      ││      ││      ││      ││      ││      ││      ││      ││      │    
+ ┌─▶ │ .... ││ .... ││ .... ││ .... ││ .... ││ .... ││ .... ││ .... ││ .... ││ A    │ ──┐
+ │   │      ││      ││      ││      ││      ││      ││      ││      ││      ││      │   │
+ │   └──────┘└──────┘└──────┘└──────┘└──────┘└──────┘└──────┘└──────┘└──────┘└──────┘   │
+ │                                                                                      │
+─┼─ Start/Finish (+1 lap if you cross it)                                               │
+ │                                                                                      │
+ │   ┌──19──┐┌──18──┐┌──17──┐┌──16──┐┌──15──┐┌──14──┐┌──13──┐┌──12──┐┌──11──┐┌──10──┐   │
+ │   │      ││      ││      ││      ││      ││      ││      ││      ││      ││      │   │
+ └── │ .... ││ .... ││ .... ││ .... ││ .... ││ .... ││ .... ││ .... ││ .... ││ B    │ ◀─┘
+     │      ││      ││      ││      ││      ││      ││      ││      ││      ││      │    
+     └──────┘└──────┘└──────┘└──────┘└──────┘└──────┘└──────┘└──────┘└──────┘└──────┘    
+                │
+                ▼  pit entry
+------------------------------------------------------------------------------------------
+STANDINGS:
+  1. Redbull[CPU]                  Lap 0/3  Pos 10  Hard x8
+  2. You                           Lap 0/3  Pos  9  Soft x2
+------------------------------------------------------------------------------------------
+ YOUR HAND [+2 for Soft tires]
+  Soft[7] +2 | Soft[6] +2
+------------------------------------------------------------------------------------------
+```
 
 **Ranking and end condition:**
 
