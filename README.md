@@ -156,6 +156,7 @@ Claude Code (claude-sonnet-4-6) was used as a coding assistant during implementa
 - Translating the game rules and design decisions into F# modules (`Types.fs`, `Movement.fs`, `Pit.fs`, `Race.fs`, `Render.fs`, `Input.fs`, `AI.fs`, `Setup.fs`, `Program.fs`)
 - Iterating on terminal layout details (cell sizing, connector characters, column alignment) under my direction
 - Implementing the three AI strategy variants (Greedy, RandomPlay, Precise) from my behavioral descriptions
+- Summarize the works done by me and my LLM during the section, write a powerful and precies `README.md` with smooth English skill which helped me a lot.
 
 **What required manual correction or reprompting:**
 - Track cell border widths: the LLM did not match the character counts I set manually, requiring several correction rounds
