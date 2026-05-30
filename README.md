@@ -6,7 +6,7 @@ This repository contains console based racing game which is motivated with Formu
 Requires [.NET 10 SDK](https://dotnet.microsoft.com/download).
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/L-Sangmin/CS20200-console-formula-racing.git
 cd CS20200-console-formula-racing
 dotnet run
 ```
