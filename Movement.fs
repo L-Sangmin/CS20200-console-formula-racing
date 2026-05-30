@@ -5,11 +5,11 @@ open Types
 // Movement values from implementation guide
 let tireMove (tire: TireType) (weather: Weather) : int =
     match tire, weather with
-    | Soft,   Sunny -> 9
-    | Soft,   Rainy -> 4
-    | Medium, Sunny -> 7
-    | Medium, Rainy -> 4
-    | Hard,   Sunny -> 6
+    | Soft,   Sunny -> 7
+    | Soft,   Rainy -> 3
+    | Medium, Sunny -> 6
+    | Medium, Rainy -> 3
+    | Hard,   Sunny -> 5
     | Hard,   Rainy -> 3
 
 // Basic movement when a team has no tire cards left (Req 13)

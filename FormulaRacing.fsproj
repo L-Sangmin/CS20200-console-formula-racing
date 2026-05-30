@@ -10,6 +10,8 @@
     <Compile Include="Pit.fs" />
     <Compile Include="Race.fs" />
     <Compile Include="Render.fs" />
+    <Compile Include="Input.fs" />
+    <Compile Include="Setup.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 </Project>

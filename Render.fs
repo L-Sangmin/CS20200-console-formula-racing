@@ -41,61 +41,29 @@ let teamLetter (id: int) : string =
 //   enter: team moves off-track (Position = 20)
 //   exit : team placed at pos 0 (S/F crossing = +1 lap), then moves normally
 //
-// Each cell: 6 chars  ┌─NN─┐ / │CCCC│ / └────┘  (3 rows, no lap-count row)
+// Each cell: 8 chars  ┌──NN──┐ / │CCCCCC│ / └──────┘  (5 rows: top + blank + content + blank + bottom)
 
-// Space-type label embedded in cell content (4 chars)
-let private spChar (pos: int) : string =
-    if   pos = 0           then "S"   // Start / Finish
-    elif pos = PitEntryPos then "!"   // Pit Entry (pos 18)
-    else                        "."   // Normal
-
-// Build one main-track cell: [topBorder; content; bottomBorder], each 6 chars
+// Build one main-track cell: 5-element list, each string 8 chars
 // Teams in the pit (Position = PitSpacePos = 20) are NOT shown here
 let private buildBoxCell (state: GameState) (pos: int) : string list =
-    let top  = sprintf "┌─%02d─┐" pos
-    let bot  = "└────┘"
+    let top  = sprintf "┌──%02d──┐" pos
+    let bot  = "└──────┘"
     let here =
         state.Teams
         |> List.filter (fun t -> t.Position = pos && not t.Finished && not t.InPit)
-    let sp = spChar pos
-    let row =
+    let content =
         match here with
         | [] ->
             match pos with
-            | 0                      -> "│S/F │"
-            | p when p = PitEntryPos -> "│P.E │"
-            | _                      -> "│ .. │"
-        | [t]    -> sprintf "│ %s%s │" (teamLetter t.Id) sp
-        | t :: _ -> sprintf "│ %s+%s│" (teamLetter t.Id) sp
-    [ top; row; bot ]
+            | 0                      -> " S/F  "
+            | p when p = PitEntryPos -> " P.E  "
+            | _                      -> " .... "
+        | teams ->
+            let letters = teams |> List.truncate 4 |> List.map (fun t -> teamLetter t.Id) |> String.concat ""
+            (" " + letters).PadRight(6)
+    [ top; "│      │"; sprintf "│%s│" content; "│      │"; bot ]
 
-// Concatenate one line-index across all cells, prefixed with one space
-let private segLine (cells: string list list) (i: int) : string =
-    " " + (cells |> List.map (List.item i) |> String.concat "")
-
-// 3-line segment with direction arrow on the top-border line
-let private buildSegment (state: GameState) (positions: int list) (arrow: string) : string =
-    let cells = positions |> List.map (buildBoxCell state)
-    sprintf "%s %s\n%s\n%s"
-        (segLine cells 0) arrow
-        (segLine cells 1)
-        (segLine cells 2)
-
-// ── pit connectors and team list ─────────────────────────────────────────────
-// Column alignment (0-indexed from line start):
-//   pos 00 in top row    → col 3  (prefix " " + "┌─" = 3 chars before "00")
-//   pos 18 in bottom row → col 9  (prefix " " + "┌─19─┐┌─" = 9 chars before "18")
-//
-// Pit exit: a line/arrow above the top row pointing DOWN into pos 00
-// Pit entry: a line/arrow below the bottom row pointing DOWN from pos 18
-
-// Three lines above the top row: corner turn + vertical drop + arrowhead into pos 00
-let private pitExitHeader : string =
-    "───┐ pit exit (+1 lap)\n   │\n   ▼"
-
-// Three lines below the bottom row: vertical drop + arrowhead from pos 18 into pit
-let private pitEntryFooter : string =
-    "         │\n         │\n         ▼  pit entry (pos 18)"
+// ── pit team list ────────────────────────────────────────────────────────────
 
 let private cardInfo (t: TeamState) : string =
     match t.TireCards with
@@ -114,13 +82,44 @@ let private renderPitTeams (state: GameState) : string =
                     (teamLetter t.Id) t.Name (kindLabel t.Kind) (cardInfo t))
         "=== Teams in Pit ===\n" + String.concat "\n" rows
 
-// Full track: pit-exit header / top segment / gap / bottom segment / pit-entry footer / pit teams
+// Full track: left/right U-turn connectors + S/F marker + pit entry indicator + pit teams
+// 8-char cells: 10×8=80 + 5-char left prefix + 4-char right connector = 89 per line
+// Cells have 5 lines: [top, blank, content, blank, bottom]
+// Pit entry indicator aligns under pos 18 col 16 (5 prefix + 8 for pos19 + 3 into pos18)
 let renderTrack (state: GameState) : string =
-    let top      = buildSegment state [ 0 .. 9 ]         "→"
-    let bot      = buildSegment state [ 19 .. -1 .. 10 ] "←"
+    let topCells = [ 0..9 ]       |> List.map (buildBoxCell state)
+    let botCells = [ 19..-1..10 ] |> List.map (buildBoxCell state)
+    let raw cells i = cells |> List.map (List.item i) |> String.concat ""
+    let t0 = raw topCells 0   // top borders
+    let t1 = raw topCells 1   // blank top
+    let t2 = raw topCells 2   // content
+    let t3 = raw topCells 3   // blank bottom
+    let t4 = raw topCells 4   // bottom borders
+    let b0 = raw botCells 0
+    let b1 = raw botCells 1
+    let b2 = raw botCells 2
+    let b3 = raw botCells 3
+    let b4 = raw botCells 4
+    let circuit =
+        [ sprintf "     %s    " t0    // top borders, no right connector
+          sprintf "     %s    " t1    // blank top, left │ only
+          sprintf " ┌─▶ %s ──┐" t2   // content: left entry arrow + right turn corner
+          sprintf " │   %s   │" t3   // blank bottom, right │
+          sprintf " │   %s   │" t4   // bottom borders, right │
+          " │                                                                                      │"
+          "─┼─ Start/Finish                                                                        │"
+          " │                                                                                      │"
+          sprintf " │   %s   │" b0   // top borders, right │
+          sprintf " │   %s   │" b1   // blank top, right │
+          sprintf " └── %s ◀─┘" b2   // content: left exit + right turn corner
+          sprintf "     %s    " b3   // blank bottom, no connector
+          sprintf "     %s    " b4   // bottom borders, no connector
+          "                │"
+          "                │"
+          "                ▼  pit entry (pos 18)" ]
     let pitTeams = renderPitTeams state
     let parts =
-        [ pitExitHeader; top; ""; bot; pitEntryFooter ]
+        [ String.concat "\n" circuit ]
         @ (if pitTeams = "" then [] else [ ""; pitTeams ])
     String.concat "\n" parts
 
@@ -158,7 +157,7 @@ let renderHand (team: TeamState) (weather: Weather) : string =
 
 // ── full state display ─────────────────────────────────────────────────────
 
-let sep = String.replicate 63 "-"
+let sep = String.replicate 90 "-"
 
 let renderAll (state: GameState) : unit =
     let currentId =
