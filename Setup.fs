@@ -13,18 +13,22 @@ let private tireDetailLabel (t: TireType) : string =
     let cards = Pit.tireCardCount t
     sprintf "%-6s  Sunny:%d  Rainy:%d  Cards:%d" (Render.tireLabel t) sunny rainy cards
 
-let private makeTeam (id: int) (name: string) (kind: TeamKind)
-                     (passive: PassiveAbility) (tire: TireType) : TeamState =
+let private aiAlgos = [| Greedy; RandomPlay; Precise |]
+
+let private makeTeam (rng: System.Random) (id: int) (name: string) (kind: TeamKind)
+                     (algo: AiAlgorithm) (passive: PassiveAbility) (tire: TireType) : TeamState =
     let count =
         let base_ = Pit.tireCardCount tire
         match passive with PitCrew -> base_ + 2 | _ -> base_
+    let cards = List.init count (fun _ -> { Tire = tire; Variance = Movement.rollVariance rng })
     { Id         = id
       Name       = name
       Kind       = kind
+      Algorithm  = algo
       Passive    = passive
       Position   = 0
       Lap        = 0
-      TireCards  = List.replicate count tire
+      TireCards  = cards
       InPit      = false
       Finished   = false
       FinishRank = None }
@@ -68,9 +72,10 @@ let setupGame () : GameState =
             usedPassives.Add(passive) |> ignore
             let tire = allTires.[rng.Next(List.length allTires)]
             let name = aiNames.[i - 1]
-            makeTeam (i + 1) name AI passive tire)
+            let algo = aiAlgos.[rng.Next(3)]
+            makeTeam rng (i + 1) name AI algo passive tire)
 
-    let humanTeam = makeTeam 1 "You" Human humanPassive humanTire
+    let humanTeam = makeTeam rng 1 "You" Human Greedy humanPassive humanTire
 
     // Randomise turn order
     let allTeams    = humanTeam :: aiTeams

@@ -22,6 +22,18 @@ let passiveLabel (p: PassiveAbility) : string =
     | PitCrew      -> "Pit Crew      (+2 cards on pit replenish)"
     | Endurance    -> "Endurance     (+2 basic move)"
 
+let passiveShortLabel (p: PassiveAbility) : string =
+    match p with
+    | WarmTires    -> "Warm Tires"
+    | RainEngineer -> "Rain Engineer"
+    | PitCrew      -> "Pit Crew"
+    | Endurance    -> "Endurance"
+
+let private teamNameTag (t: TeamState) : string =
+    match t.Kind with
+    | AI    -> sprintf "%s[CPU]" t.Name
+    | Human -> t.Name
+
 let kindLabel (k: TeamKind) : string =
     match k with
     | Human -> "YOU"
@@ -53,11 +65,7 @@ let private buildBoxCell (state: GameState) (pos: int) : string list =
         |> List.filter (fun t -> t.Position = pos && not t.Finished && not t.InPit)
     let content =
         match here with
-        | [] ->
-            match pos with
-            | 0                      -> " S/F  "
-            | p when p = PitEntryPos -> " P.E  "
-            | _                      -> " .... "
+        | [] -> " .... "
         | teams ->
             let letters = teams |> List.truncate 4 |> List.map (fun t -> teamLetter t.Id) |> String.concat ""
             (" " + letters).PadRight(6)
@@ -68,7 +76,7 @@ let private buildBoxCell (state: GameState) (pos: int) : string list =
 let private cardInfo (t: TeamState) : string =
     match t.TireCards with
     | []     -> "no cards"
-    | c :: _ -> sprintf "%s x%d" (tireLabel c) (List.length t.TireCards)
+    | c :: _ -> sprintf "%s x%d" (tireLabel c.Tire) (List.length t.TireCards)
 
 // Teams currently in the pit lane, shown as a labelled list below the circuit
 let private renderPitTeams (state: GameState) : string =
@@ -101,13 +109,15 @@ let renderTrack (state: GameState) : string =
     let b3 = raw botCells 3
     let b4 = raw botCells 4
     let circuit =
-        [ sprintf "     %s    " t0    // top borders, no right connector
-          sprintf "     %s    " t1    // blank top, left │ only
-          sprintf " ┌─▶ %s ──┐" t2   // content: left entry arrow + right turn corner
+        [ "        │ pit exit (+1 lap)"
+          "        ▼"    // ▼ at col 8, directly above pos 00
+          sprintf "     %s    " t0          // top borders
+          sprintf "     %s    " t1          // blank top
+          sprintf " ┌─▶ %s ──┐" t2         // content: left entry arrow + right turn corner
           sprintf " │   %s   │" t3   // blank bottom, right │
           sprintf " │   %s   │" t4   // bottom borders, right │
           " │                                                                                      │"
-          "─┼─ Start/Finish                                                                        │"
+          "─┼─ Start/Finish (+1 lap if you cross it)                                               │"
           " │                                                                                      │"
           sprintf " │   %s   │" b0   // top borders, right │
           sprintf " │   %s   │" b1   // blank top, right │
@@ -115,8 +125,7 @@ let renderTrack (state: GameState) : string =
           sprintf "     %s    " b3   // blank bottom, no connector
           sprintf "     %s    " b4   // bottom borders, no connector
           "                │"
-          "                │"
-          "                ▼  pit entry (pos 18)" ]
+          "                ▼  pit entry" ]
     let pitTeams = renderPitTeams state
     let parts =
         [ String.concat "\n" circuit ]
@@ -137,29 +146,51 @@ let renderStandings (state: GameState) : string =
     let rows =
         Race.computeStandings state
         |> List.map (fun (t, rank) ->
-            sprintf "  %d. %-10s [%s]  %s"
-                rank t.Name (kindLabel t.Kind) (teamStatus t state.TargetLaps))
+            sprintf "  %d. %-29s %s"
+                rank (teamNameTag t) (teamStatus t state.TargetLaps))
     "STANDINGS:\n" + (rows |> String.concat "\n")
 
 // ── hand display ───────────────────────────────────────────────────────────
 
+let private tireTypeOrder (t: TireType) : int =
+    match t with Soft -> 0 | Medium -> 1 | Hard -> 2
+
+// Sort by type (Soft→Medium→Hard) then by move value descending within type
+let sortCards (cards: TireCard list) (weather: Weather) : TireCard list =
+    cards |> List.sortWith (fun a b ->
+        let ta = tireTypeOrder a.Tire
+        let tb = tireTypeOrder b.Tire
+        if ta <> tb then compare ta tb
+        else compare (Movement.cardMove b weather) (Movement.cardMove a weather))
+
 let renderHand (team: TeamState) (weather: Weather) : string =
+    let passiveDesc =
+        match team.Passive with
+        | WarmTires    -> "+2 for Soft tires"
+        | RainEngineer -> sprintf "+2 in Rainy%s" (if weather = Rainy then " (active)" else " (inactive)")
+        | Endurance    -> "+2 on basic move"
+        | PitCrew      -> "+2 cards on pit stop"
+    let header = sprintf "YOUR HAND [%s]" passiveDesc
     match team.TireCards with
     | [] ->
-        let mv = Movement.basicMove weather
-        sprintf "HAND: no tire cards — basic move: %d space(s) in %s" mv (weatherLabel weather)
+        let mv = Movement.computeMove team.Passive None weather
+        sprintf "%s: (empty) — basic move: %d in %s" header mv (weatherLabel weather)
     | cards ->
-        let ttype = List.head cards
-        let count = List.length cards
-        let mv    = Movement.tireMove ttype weather
-        sprintf "HAND: %s x%d — one card moves %d space(s) in %s"
-            (tireLabel ttype) count mv (weatherLabel weather)
+        let sorted = sortCards cards weather
+        let cardStrs =
+            sorted |> List.map (fun card ->
+                let base_ = Movement.cardMove card weather
+                let total  = Movement.applyPassive team.Passive (Some card.Tire) weather base_
+                let bonus  = total - base_
+                if bonus > 0 then sprintf "%s[%d] +%d" (tireLabel card.Tire) base_ bonus
+                else            sprintf "%s[%d]"       (tireLabel card.Tire) base_)
+        header + "\n  " + String.concat " | " cardStrs
 
 // ── full state display ─────────────────────────────────────────────────────
 
 let sep = String.replicate 90 "-"
 
-let renderAll (state: GameState) : unit =
+let renderAll (state: GameState) (aiLog: string list) : unit =
     let currentId =
         if state.TurnIndex < List.length state.TurnOrder
         then List.item state.TurnIndex state.TurnOrder
@@ -175,14 +206,18 @@ let renderAll (state: GameState) : unit =
     printfn " Round %-2d | Weather: %-5s | Turn: %s"
         state.CurrentRound (weatherLabel state.Weather) turnLabel
     printfn "%s" sep
+    if not (List.isEmpty aiLog) then
+        printfn " AI turns:"
+        aiLog |> List.iter (fun msg -> printfn "  %s" msg)
+        printfn "%s" sep
     printfn " TRACK:"
     printfn "%s" (renderTrack state)
     printfn "%s" sep
     printfn "%s" (renderStandings state)
     printfn "%s" sep
-    // Show hand only on the human player's turn
-    match currentTeam with
-    | Some t when t.Kind = Human && not t.Finished ->
+    let humanTeam = state.Teams |> List.tryFind (fun t -> t.Kind = Human)
+    match humanTeam with
+    | Some t when not t.Finished ->
         printfn " %s" (renderHand t state.Weather)
         printfn "%s" sep
     | _ -> ()

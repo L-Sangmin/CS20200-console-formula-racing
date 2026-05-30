@@ -37,14 +37,25 @@ type TeamKind =
     | Human
     | AI
 
+// AI decision strategy assigned per AI team
+type AiAlgorithm =
+    | Greedy      // best card, pit when ≤1 card left
+    | RandomPlay  // random card, random pit decision
+    | Precise     // random card, pit only when strictly necessary
+
+// A tire card with its variance pre-rolled at creation time.
+// Move at play time = tireMove(Tire, weather) + Variance (+ any passive bonus).
+type TireCard = { Tire: TireType; Variance: int }
+
 type TeamState = {
     Id         : int
     Name       : string
     Kind       : TeamKind
+    Algorithm  : AiAlgorithm        // Greedy for Human (ignored)
     Passive    : PassiveAbility
     Position   : int               // 0–19; 0 = Start/Finish line
     Lap        : int               // laps completed so far
-    TireCards  : TireType list     // current hand; one card spent per turn
+    TireCards  : TireCard list     // current hand; one card spent per turn
     InPit      : bool
     Finished   : bool
     FinishRank : int option        // assigned when team finishes

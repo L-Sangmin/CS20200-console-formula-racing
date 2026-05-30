@@ -11,6 +11,7 @@
     <Compile Include="Race.fs" />
     <Compile Include="Render.fs" />
     <Compile Include="Input.fs" />
+    <Compile Include="AI.fs" />
     <Compile Include="Setup.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

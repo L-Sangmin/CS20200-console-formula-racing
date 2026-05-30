@@ -2,16 +2,24 @@ module Input
 
 open Types
 
+exception QuitGame
+
 let (|ParseInt|_|) (s: string) =
     match System.Int32.TryParse(s) with
     | true, n -> Some n
     | _       -> None
 
+// ReadLine that raises QuitGame on "!q"
+let readLine () : string =
+    let s = System.Console.ReadLine()
+    if s <> null && s.Trim() = "!q" then raise QuitGame
+    s
+
 // Repeat until user enters int in [lo, hi]
 let promptInt (prompt: string) (lo: int) (hi: int) : int =
     let rec loop () =
         printf "%s (%d–%d): " prompt lo hi
-        match System.Console.ReadLine() with
+        match readLine () with
         | ParseInt n when n >= lo && n <= hi -> n
         | _ ->
             printfn " ! Enter a number between %d and %d." lo hi

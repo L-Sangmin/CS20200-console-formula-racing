@@ -12,7 +12,7 @@ let applyMovement (team: TeamState) (move: int) : TeamState * int =
 
 // Pop one tire card from hand (Req 9)
 // Returns None when hand is empty — caller must fall back to basicMove
-let useTireCard (team: TeamState) : (TireType * TeamState) option =
+let useTireCard (team: TeamState) : (TireCard * TeamState) option =
     match team.TireCards with
     | []           -> None
     | card :: rest -> Some (card, { team with TireCards = rest })

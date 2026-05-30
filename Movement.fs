@@ -6,7 +6,7 @@ open Types
 let tireMove (tire: TireType) (weather: Weather) : int =
     match tire, weather with
     | Soft,   Sunny -> 7
-    | Soft,   Rainy -> 3
+    | Soft,   Rainy -> 4
     | Medium, Sunny -> 6
     | Medium, Rainy -> 3
     | Hard,   Sunny -> 5
@@ -34,21 +34,34 @@ let applyPassive
     | Endurance,    None,      _     -> baseMove + 2
     | _                              -> baseMove
 
-// Compute final movement for a team's turn
-// tireOpt = None means the team has no cards and uses basic movement
+// Per-card base move: variance applies only in Sunny (Rainy has fixed values)
+let cardMove (card: TireCard) (weather: Weather) : int =
+    let v = if weather = Rainy then 0 else card.Variance
+    max 1 (tireMove card.Tire weather + v)
+
+// Compute final movement for a team's turn.
+// cardOpt = None means no cards → basic movement.
+// Passive bonus applied on top of card base.
 let computeMove
         (passive : PassiveAbility)
-        (tireOpt : TireType option)
+        (cardOpt : TireCard option)
         (weather : Weather) : int =
+    let tireOpt = cardOpt |> Option.map (fun c -> c.Tire)
     let base_ =
-        match tireOpt with
-        | Some tire -> tireMove tire weather
+        match cardOpt with
+        | Some card -> cardMove card weather
         | None      -> basicMove weather
     applyPassive passive tireOpt weather base_
 
-// True when move crosses PitEntryPos but does NOT complete the lap (Req 14).
-// If the move also reaches or passes TrackLength, the team crosses S/F instead
-// and the pit option does not apply (they'd enter pit on the next lap).
+// Roll variance delta with 1:2:1 distribution → -1 / 0 / +1
+let rollVariance (rng: System.Random) : int =
+    match rng.Next(4) with
+    | 0 -> -1
+    | 3 ->  1
+    | _ ->  0
+
+// True when move crosses PitEntryPos.
+// Pit entry is offered even when the move also crosses S/F; pit exit handles lap counting.
 let passesPitEntry (pos: int) (move: int) : bool =
     let newPos = pos + move
-    pos < PitEntryPos && newPos >= PitEntryPos && newPos < TrackLength
+    pos < PitEntryPos && newPos >= PitEntryPos
